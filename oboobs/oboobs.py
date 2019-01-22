@@ -61,6 +61,7 @@ class OboobsC(BaseCog):
                 rep = await response.json()
                 return rep
 
+    @checks.is_owner()
     @commands.group(name="oboobs", pass_context=True)
     async def _oboobs(self, ctx):
         """The oboobs/obutts.ru pictures of nature cog."""
@@ -69,6 +70,7 @@ class OboobsC(BaseCog):
             return
 
     # Boobs
+    @checks.is_owner()
     @commands.command(no_pm=True)
     async def boobs(self, ctx):
         """Shows some boobs."""
@@ -88,6 +90,7 @@ class OboobsC(BaseCog):
             await ctx.send(embed=emb)
 
     # Ass
+    @checks.is_owner()
     @commands.command(pass_context=True, no_pm=False)
     async def ass(self, ctx):
         """Shows some ass."""
