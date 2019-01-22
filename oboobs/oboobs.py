@@ -45,7 +45,9 @@ class OboobsC(BaseCog):
         default_global = {
             "ama_ass": 0,
             "ama_boobs": 0,
-            "last_update": 0
+            "last_update": 0,
+            "post_delay": 0,
+            "post_channel": None
         }
         default_guild = {
             "invert": False,
@@ -54,6 +56,8 @@ class OboobsC(BaseCog):
         }
         self.settings.register_guild(**default_guild)
         self.settings.register_global(**default_global)
+        
+        asyncio.create_task(self.postboobs())
 
     async def get(self, url):
         async with aiohttp.ClientSession() as session:
@@ -68,6 +72,75 @@ class OboobsC(BaseCog):
         if ctx.invoked_subcommand is None:
             await ctx.send_help()
             return
+
+    @_oboobs.command()
+    async def postrate(self, ctx, delay: int):
+        """
+        Sets the posting rate for oboobs
+        """
+        try:
+            await self.settings.post_delay.set(delay)
+            await ctx.send(f"Delay has been set to: {delay}")
+        except (KeyError, AttributeError,  ValueError):
+            await ctx.send("There was a problem setting the delay! Please check your input and try again.")
+
+    @_oboobs.command()
+    async def channel(self, ctx, channel: discord.TextChannel):
+        """
+        Sets the channel to post the filth into
+        """
+        try:
+            await self.settings.post_channel.set(channel.id)
+            await ctx.send(f"Channel set to {channel.name}")
+        except (KeyError, AttributeError, ValueError):
+            await ctx.send("There was a problem setting the channel! Please chekc the input and try again")
+
+    async def postboobs(self):
+        """
+        Posts the filth with a delay
+        """
+        delay = await self.settings.post_delay()
+        channel = await self.settings.post_channel()
+        current = "Boob"
+
+
+        while 1:
+            await asyncio.sleep(delay)
+
+            post_channel = self.bot.get_channel(channel)
+            if current is "boob":
+                try:
+                    rdm = random.randint(0, await self.settings.ama_boobs())
+                    search = ("http://api.oboobs.ru/boobs/{}".format(rdm))
+                    result = await self.get(search)
+                    tmp = random.choice(result)
+                    print(result)
+                    boob = "http://media.oboobs.ru/{}".format(tmp["preview"])
+                except Exception as e:
+                    await post_channel.send("Error getting results.\n{}".format(e))
+                    return
+                
+                emb = discord.Embed(title="Boobs")
+                emb.set_image(url=boob)
+                await post_channel.send(embed=emb)
+                current = "ass"
+            else:
+                try:
+                    rdm = random.randint(0, await self.settings.ama_ass())
+                    search = ("http://api.obutts.ru/butts/{}".format(rdm))
+                    result = await self.get(search)
+                    tmp = random.choice(result)
+                    ass = "http://media.obutts.ru/{}".format(tmp["preview"])
+                except Exception as e:
+                    await post_channel.send("Error getting results.\n{}".format(e))
+                    return
+
+                emb = discord.Embed(title="Ass")
+                emb.set_image(url=ass)
+                await post_channel.send(embed=emb)
+                current = "boob"
+
+
 
     # Boobs
     @checks.is_owner()
