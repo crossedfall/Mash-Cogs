@@ -99,13 +99,12 @@ class OboobsC(BaseCog):
         """
         Posts the filth with a delay
         """
-        delay = await self.settings.post_delay()
         channel = await self.settings.post_channel()
         current = "Boob"
 
 
         while 1:
-            await asyncio.sleep(delay)
+            await asyncio.sleep(await self.settings.post_delay())
 
             post_channel = self.bot.get_channel(channel)
             if current is "boob":
