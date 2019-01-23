@@ -57,7 +57,10 @@ class OboobsC(BaseCog):
         self.settings.register_guild(**default_guild)
         self.settings.register_global(**default_global)
         
-        asyncio.create_task(self.postboobs())
+        self.poster = asyncio.create_task(self.postboobs())
+
+    def __unload(self):
+        self.poster.cancel()
 
     async def get(self, url):
         async with aiohttp.ClientSession() as session:
